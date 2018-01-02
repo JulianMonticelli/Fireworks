@@ -21,11 +21,13 @@ public class GraphicsPanel extends JPanel {
     private boolean running = false;
     
     FireworksHandler fireworksHandler;
+    StarHandler starHandler;
     
     public GraphicsPanel() {
         this.setPreferredSize(new Dimension(800,600));
         this.setBackground(Color.BLACK);
         
+        starHandler = new StarHandler();
         fireworksHandler = new FireworksHandler();
     }
     
@@ -61,13 +63,14 @@ public class GraphicsPanel extends JPanel {
     }
     
     public void tick() {
-        fireworksHandler.tick();
+        fireworksHandler.tick(this.getWidth(), this.getHeight());
     }
     
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        fireworksHandler.draw(g);
+        starHandler.draw(g);
+        fireworksHandler.draw(g, this.getWidth(), this.getHeight());
     }
     
 

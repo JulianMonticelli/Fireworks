@@ -40,9 +40,9 @@ public class Firework {
     
     
     // This assumes an entirely new firework being shot from the "ground"
-    public Firework() {
+    public Firework(int pixelsX, int pixelsY) {
         this.posY = 0;
-        this.posX = rand.nextFloat() * 800 * POS_UNIT_PER_PIXEL;
+        this.posX = rand.nextFloat() * pixelsX * POS_UNIT_PER_PIXEL;
         // Neonish colors are a 25% chance
         if (rand.nextBoolean() && rand.nextBoolean()) {
             this.color = new Color(128+rand.nextInt(128), 128+rand.nextInt(128),
@@ -154,10 +154,10 @@ public class Firework {
         return children;
     }
     
-    public void draw(Graphics g) {
+    public void draw(Graphics g, int pixelsX, int pixelsY) {
         g.setColor(color);
         g.fillArc((int)posX/POS_UNIT_PER_PIXEL,
-                600-(int)posY/POS_UNIT_PER_PIXEL,
+                pixelsY-(int)posY/POS_UNIT_PER_PIXEL,
                 size/2, size/2, 0, 360);
     }
     

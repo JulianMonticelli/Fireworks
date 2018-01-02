@@ -26,12 +26,12 @@ public class FireworksHandler {
          addList = new LinkedList<>();
     }
     
-    public void tick() {
+    public void tick(int pixelsX, int pixelsY) {
         addList.clear();
         removeList.clear();
         synchronized (fireworks) {
             if (rand.nextInt(100) > 90) {
-                fireworks.add(new Firework());
+                fireworks.add(new Firework(pixelsX, pixelsY));
             }
             
             for (Firework firework : fireworks) {
@@ -48,10 +48,10 @@ public class FireworksHandler {
         }
     }
     
-    public void draw(Graphics g) {
+    public void draw(Graphics g, int pixelsX, int pixelsY) {
         synchronized (fireworks) {
             for (Firework firework : fireworks) {
-                firework.draw(g);
+                firework.draw(g, pixelsX, pixelsY);
             }
         }
     }
