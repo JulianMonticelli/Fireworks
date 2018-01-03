@@ -18,6 +18,8 @@ public class Firework {
     
     private static final Random rand = new Random();    
     private static final int POS_UNIT_PER_PIXEL = 10;
+    private static final int TTF_FADE_DIVISOR = 10;
+    
     private static final double GRAVITATIONAL_CONSTANT = -4.9F; // position/second
     
     private double posX;
@@ -26,6 +28,7 @@ public class Firework {
     
     private Color color;
     
+    private final int ticksTilFinishMax;
     private int ticksTilFinish;
     
     private boolean spawnsChildren;
@@ -44,23 +47,9 @@ public class Firework {
         this.posY = 0;
         this.posX = rand.nextFloat() * pixelsX * POS_UNIT_PER_PIXEL;
         // Neonish colors are a 25% chance
-        if (rand.nextBoolean() && rand.nextBoolean()) {
-            this.color = new Color(128+rand.nextInt(128), 128+rand.nextInt(128),
-                128+rand.nextInt(128));
-        } else {
-            if (rand.nextBoolean()) {
-                this.color = new Color(128+rand.nextInt(128), rand.nextInt(255),
-                    rand.nextInt(255));
-            } else if (rand.nextBoolean())
-            {
-                this.color = new Color(rand.nextInt(255), 128+rand.nextInt(128), 
-                    rand.nextInt(255));
-            } else {
-                this.color = new Color(rand.nextInt(255), rand.nextInt(255),
-                    128+rand.nextInt(128));
-            }
-        }
-        this.ticksTilFinish = rand.nextInt(30) + 30;
+        this.color = selectRandomColor();
+        this.ticksTilFinishMax = rand.nextInt(30) + 30;
+        this.ticksTilFinish = ticksTilFinishMax;
         this.spawnsChildren = true;
         this.childrenCount = rand.nextInt(64) + 8;
         this.generation = 0;
@@ -80,6 +69,7 @@ public class Firework {
         this.posX = posX;
         this.posY = posY;
         this.color = color;
+        this.ticksTilFinishMax = ticksTilFinish;
         this.ticksTilFinish = ticksTilFinish;
         this.spawnsChildren = spawnsChildren;
         this.childrenCount = childrenCount;
@@ -98,9 +88,40 @@ public class Firework {
         
         ticksTilFinish--;
         
-        if (ticksTilFinish <= 0) {
+        int fadeTicks = ticksTilFinishMax/TTF_FADE_DIVISOR;
+        fadeTicks = fadeTicks == 0 ? 1 : fadeTicks;
+        
+        if (ticksTilFinish < fadeTicks && ticksTilFinish > 0) {
+            
+            color = new Color(color.getRed(), color.getGreen(),
+                    color.getBlue(), color.getAlpha() - (255/fadeTicks));
+            
+            if (ticksTilFinish == fadeTicks) System.out.println(color.getAlpha());
+            
+        }
+        
+        else if (ticksTilFinish <= 0) {
             finish();
-        } 
+        }
+    }
+    
+    public Color selectRandomColor() {
+        if (rand.nextBoolean() && rand.nextBoolean()) {
+            return new Color(128+rand.nextInt(128), 128+rand.nextInt(128),
+                128+rand.nextInt(128));
+        } else {
+            if (rand.nextBoolean()) {
+                return new Color(128+rand.nextInt(128), rand.nextInt(255),
+                    rand.nextInt(255));
+            } else if (rand.nextBoolean())
+            {
+                return new Color(rand.nextInt(255), 128+rand.nextInt(128), 
+                    rand.nextInt(255));
+            } else {
+                return new Color(rand.nextInt(255), rand.nextInt(255),
+                    128+rand.nextInt(128));
+            }
+        }
     }
     
     public LinkedList<Firework> finish() {
@@ -119,24 +140,10 @@ public class Firework {
             for (int i = 0; i < childrenCount; i++) {
                 Color childColor;
                 if (childrenInheritParentColor) {
-                    childColor = this.color;
+                    childColor = new Color(color.getRed(), color.getGreen(),
+                        color.getBlue(), 255);
                 } else {
-                    if (rand.nextBoolean() && rand.nextBoolean()) {
-                        childColor = new Color(128+rand.nextInt(128), 128+rand.nextInt(128),
-                            128+rand.nextInt(128));
-                    } else {
-                        if (rand.nextBoolean()) {
-                            childColor = new Color(128+rand.nextInt(128), rand.nextInt(255),
-                                rand.nextInt(255));
-                        } else if (rand.nextBoolean())
-                        {
-                            childColor = new Color(rand.nextInt(255), 128+rand.nextInt(128), 
-                                rand.nextInt(255));
-                        } else {
-                            childColor = new Color(rand.nextInt(255), rand.nextInt(255),
-                                128+rand.nextInt(128));
-                        }
-                    }
+                    childColor = selectRandomColor();
                 }
                 double theta = (360.0f / childrenCount) * i+1;
                 float randMult = (rand.nextInt(25) + 100) / (float)125.0f;
